@@ -1,4 +1,10 @@
 
+
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
 // SVG drawing area
 
 let margin = {top: 40, right: 10, bottom: 60, left: 60};
@@ -44,7 +50,9 @@ var yg= svg.append("g")
 	.attr("class", "y-axis")
 	.attr("transform", "translate(0," + (0) + ")")
 
-
+svg.append("text")
+	.attr("transform", "translate("+ (-50) +"," + (height/2)   +")rotate(270)")
+	.attr("class", "axis-title")
 
 
 
@@ -86,14 +94,10 @@ function updateVisualization() {
 	  console.log(rev);
 	let selectedValue = d3.select("#ranking-type").property("value");
 
-    // Sort data
-    
-    //this is the reverse: 
+	// Sort data
 	if (rev==1){
-		if (selectedValue=="stores"){data.sort((a,b) => a.stores-b.stores);}
-		else{ data.sort((a,b)=> a.revenue - b.revenue);}
-    }
-    //this is the ordered:
+		data.reverse();
+	}
 	else{
 		if (selectedValue=="stores"){data.sort((a, b)=>b.stores - a.stores);}
 		else {data.sort((a, b)=>b.revenue - a.revenue);}
@@ -117,70 +121,66 @@ function updateVisualization() {
 	else if (selectedValue== "revenue"){
 		y.domain([0,d3.max(data, function(d){return d.revenue;})] )}
 
-
-	d3.select("body").transition().duration(3000).style("background-color", "#2F1F0B");
-	d3.select("g").transition().duration(3000).style("color","#D9C3A9");
-        
-    
-// Data join
+	// Data join
 	let bars = svg.selectAll(".bar")
 	.remove()
 	.exit()
 	.data(data)
+
+	d3.select("body").transition().duration(3000).style("background-color", "#2F1F0B");
+	d3.select("g").transition().duration(3000).style("color","#D9C3A9");
+	d3.selectAll("text")
+		.text(toTitleCase(selectedValue))
 
 	// Enter
 	bars.enter()
         .append("rect")
 		.attr("class", "bar")
 		
-		
-		// .transition()
-		// .duration(1000)
-		// .ease(d3.easeLinear)
+		.merge(bars)
+		.transition()
+		.duration(1000)
+		.ease(d3.easeElasticOut)
 
-        .merge(bars)
         .attr("x", function(d){ return x(d.company); })
 		.attr("y", function(d){ 
 			if (selectedValue=="stores") return y(d.stores); 
-            else if (selectedValue=="revenue") return y(d.revenue);})
+			else if (selectedValue=="revenue") return y(d.revenue);})
+		.attr("width", x.bandwidth())
         .attr("height", function(d){ 
-            if (selectedValue=="stores") return height - y(d.stores); 
-            else if (selectedValue=="revenue") return height- y(d.revenue);})
-        .attr("width", x.bandwidth())
-        
-
-        .transition()
-        .duration(1000)
-        .attr("x", function(d){ return (x("Costa Coffee")+x("Panera Bread"))/2; })
-        .style("opacity", 0.5)
-        
+			if (selectedValue=="stores") return height - y(d.stores); 
+			else if (selectedValue=="revenue") return height- y(d.revenue);})
+		.style("opacity", 0.5)
 
 		.transition()
-        .duration(1000)
-        .attr("x", function(d){ return x(d.company); })
-        .style("opacity", 1)
-        .merge(bars)
+		.duration(1000)
+		.style("opacity", 1)
+	
+
 
 	//Update x-axis
 	svg.select("x-axis")
 	.transition()
-    .duration(1000)
+	.duration(1000)
 	.call(xAxis);
 
 	//Update y-axis
 	svg.select("y-axis")
 	.transition()
 	.duration(1000)
-    .call(yAxis);
-    
+	.call(yAxis);
 
+	
 
-
-
-    	// Draw Axes
+	// Draw Axes
 	xg.call(xAxis)
 	yg.call(yAxis)
 
+	// bars.exit()    
+	// .transition()    
+	// .duration(500)    
+	// .attr("x", -xScale.bandwidth())  // <-- Exit stage left    
+	// .remove();
 
 	if (rev==0) rev= 1;
 	else rev= 0;

@@ -95,3 +95,8 @@ h2 {
 .x-axis path {
   display: none;
 }
+
+
+.svg{
+  padding-left: 50px;
+}

@@ -1,4 +1,10 @@
 
+
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
 // SVG drawing area
 
 let margin = {top: 40, right: 10, bottom: 60, left: 60};
@@ -44,7 +50,9 @@ var yg= svg.append("g")
 	.attr("class", "y-axis")
 	.attr("transform", "translate(0," + (0) + ")")
 
-
+svg.append("text")
+	.attr("transform", "translate("+ (-50) +"," + (height/2)   +")rotate(270)")
+	.attr("class", "axis-title")
 
 
 
@@ -121,7 +129,8 @@ function updateVisualization() {
 
 	d3.select("body").transition().duration(3000).style("background-color", "#2F1F0B");
 	d3.select("g").transition().duration(3000).style("color","#D9C3A9");
-		
+	d3.selectAll("text")
+		.text(toTitleCase(selectedValue))
 
 	// Enter
 	bars.enter()
